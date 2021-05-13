@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Nemlig macronutrients
 // @namespace    https://www.nemlig.com/
-// @version      1.0.0
+// @version      1.0.1
 // @description  Add macronutrient info to nemlig.com
 // @author       Appensinvandi
 // @updateURL    https://raw.githubusercontent.com/Appelsinvandi/userscript-nemlig-macronutrients/main/userscript.js
@@ -37,10 +37,14 @@ async function run() {
   anchorPoint.parentElement.append(generateStatsHtml(macros));
 }
 
+function calculateMacroTotal() {
+  return carb * 4 + protein * 4 + fat * 9;
+}
+
 function calculateMacro(base, kcalRatio) {
   return {
     kcal: Math.round(base * kcalRatio),
-    pct: Math.round(((base * kcalRatio) / kcal) * 100),
+    pct: Math.round(((base * kcalRatio) / calculateMacroTotal()) * 100),
   };
 }
 
