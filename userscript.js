@@ -4,6 +4,8 @@
 // @version      1.0.0
 // @description  Add macronutrient info to nemlig.com
 // @author       Appensinvandi
+// @updateURL    https://raw.githubusercontent.com/Appelsinvandi/userscript-nemlig-macronutrients/main/userscript.js
+// @downloadURL  https://raw.githubusercontent.com/Appelsinvandi/userscript-nemlig-macronutrients/main/userscript.js
 // @include      /.*-\d+$/
 // @grant        none
 // ==/UserScript==
