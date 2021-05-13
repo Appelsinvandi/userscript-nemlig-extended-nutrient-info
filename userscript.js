@@ -1,12 +1,12 @@
 // ==UserScript==
 // @name         Nemlig macronutrients
 // @namespace    https://www.nemlig.com/
-// @version      1.0.5
+// @version      1.0.7
 // @description  Add macronutrient info to nemlig.com
 // @author       Appensinvandi
 // @updateURL    https://raw.githubusercontent.com/Appelsinvandi/userscript-nemlig-macronutrients/main/userscript.js
 // @downloadURL  https://raw.githubusercontent.com/Appelsinvandi/userscript-nemlig-macronutrients/main/userscript.js
-// @include      /^https?:\/\/www\.nemlig\.com\/.*-\d+$/
+// @match        https://www.nemlig.com/*
 // @grant        none
 // ==/UserScript==
 
@@ -24,8 +24,8 @@ function addInfo() {
   let decs = Array.from(document.querySelectorAll('table.table tr.table__row')).map((e) => Array.from(e.querySelectorAll('td.table__col')).map((e) => e.innerText.trim()))
   let kcal = processDec(decs.find(([k, v]) => k === 'Energi')[1] ?? '')
   let carb = processDec(decs.find(([k, v]) => k === 'Kulhydrat')[1] ?? '')
-  let fat = processDec(decs.find(([k, v]) => k === 'Protein')[1] ?? '')
-  let protein = processDec(decs.find(([k, v]) => k === 'Fedt')[1] ?? '')
+  let protein = processDec(decs.find(([k, v]) => k === 'Protein')[1] ?? '')
+  let fat = processDec(decs.find(([k, v]) => k === 'Fedt')[1] ?? '')
 
   if (kcal === 0) return null
 
