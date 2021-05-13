@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Nemlig macronutrients
 // @namespace    https://www.nemlig.com/
-// @version      1.0.4
+// @version      1.0.5
 // @description  Add macronutrient info to nemlig.com
 // @author       Appensinvandi
 // @updateURL    https://raw.githubusercontent.com/Appelsinvandi/userscript-nemlig-macronutrients/main/userscript.js
@@ -17,15 +17,15 @@ function run() {
     if (document.querySelector('table.table') != null && document.querySelector('table.table + div.macros') == null) {
       addInfo()
     }
-  }, 500)
+  }, 250)
 }
 
 function addInfo() {
-  let decs = contentAsJson.content[0].Declarations
-  let kcal = processDec(decs.EnergyKcal)
-  let carb = processDec(decs.NutritionalContentCarbohydrate)
-  let fat = processDec(decs.NutritionalContentFat)
-  let protein = processDec(decs.NutritionalContentProtein)
+  let decs = Array.from(document.querySelectorAll('table.table tr.table__row')).map((e) => Array.from(e.querySelectorAll('td.table__col')).map((e) => e.innerText.trim()))
+  let kcal = processDec(decs.find(([k, v]) => k === 'Energi')[1] ?? '')
+  let carb = processDec(decs.find(([k, v]) => k === 'Kulhydrat')[1] ?? '')
+  let fat = processDec(decs.find(([k, v]) => k === 'Protein')[1] ?? '')
+  let protein = processDec(decs.find(([k, v]) => k === 'Fedt')[1] ?? '')
 
   if (kcal === 0) return null
 
@@ -52,7 +52,8 @@ function addInfo() {
   }
 
   function processDec(dec) {
-    return Number((dec ?? '').replace(/,/, '.'))
+    const value = dec.replace(/^.*?([\d,]+)\D+$/, '$1')
+    return Number((value ?? '').replace(/,/, '.'))
   }
 
   function generateStatsHtml(macros) {
