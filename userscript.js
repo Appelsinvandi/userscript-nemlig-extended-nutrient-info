@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Nemlig macronutrients
 // @namespace    https://www.nemlig.com/
-// @version      1.0.7
+// @version      1.0.8
 // @description  Add macronutrient info to nemlig.com
 // @author       Appensinvandi
 // @updateURL    https://raw.githubusercontent.com/Appelsinvandi/userscript-nemlig-macronutrients/main/userscript.js
@@ -62,35 +62,24 @@ function addInfo() {
     const statsElement = document.createElement('div')
     statsElement.classList.add('macros')
     statsElement.style = 'display: grid; grid-auto-flow: column; gap: 16px; justify-content: center; align-items: center; width: 100%;'
-
-    statsElement.innerHTML = `
-<div style="${flexCenter} width: 100px; height: 100px; ${createCircleCss(macros.carbs.pct, '#f1cdb0')}">
-  <div style="${flexCenter} width: 92px; height: 92px; background-color: white; border-radius: 50%;">
-    <span style="font-size: 10px;">Carbs</span>
-    <span style="font-size: 14px;">${macros.carbs.pct}%</span>
-    <span style="font-size: 10px;">${macros.carbs.kcal} kcal</span>
-  </div>
-</div>
-<div style="${flexCenter} width: 100px; height: 100px; ${createCircleCss(macros.proteins.pct, '#97f2f3')}">
-  <div style="${flexCenter} width: 92px; height: 92px; background-color: white; border-radius: 50%;">
-    <span style="font-size: 10px;">Proteins</span>
-    <span style="font-size: 14px;">${macros.proteins.pct}%</span>
-    <span style="font-size: 10px;">${macros.proteins.kcal} kcal</span>
-  </div>
-</div>
-<div style="${flexCenter} width: 100px; height: 100px; ${createCircleCss(macros.fats.pct, '#89aeb2')}">
-  <div style="${flexCenter} width: 92px; height: 92px; background-color: white; border-radius: 50%;">
-    <span style="font-size: 10px;">Fats</span>
-    <span style="font-size: 14px;">${macros.fats.pct}%</span>
-    <span style="font-size: 10px;">${macros.fats.kcal} kcal</span>
-  </div>
-</div>
-`
+    statsElement.innerHTML = createStat('Carbs', macros.carbs, '#E3D3A3') + createStat('Proteins', macros.proteins, '#926C96') + createStat('Fats', macros.fats, '#74968E')
 
     return statsElement
 
-    function createCircleCss(pct, color) {
-      return `border-radius: 50%; background: conic-gradient(${color}ff ${Math.round((pct / 100) * 360)}deg, ${color}30 0deg);`
+    function createStat(name, macro, color) {
+      let size = 80
+      let doughnutWidth = 2
+      let conicGradient = `background: conic-gradient(${color}ff ${Math.round((macro.pct / 100) * 360)}deg, ${color}20 0deg);`
+
+      return `
+<div style="${flexCenter} width: ${size}px; height: ${size}px; border-radius: 50%; ${conicGradient}">
+  <div style="${flexCenter} width: ${size - doughnutWidth * 2}px; height: ${size - doughnutWidth * 2}px; background-color: white; border-radius: 50%;">
+    <span style="font-size: 12px;">${name}</span>
+    <span style="font-size: 16px; font-weight: 600;">${macro.pct}%</span>
+    <span style="font-size: 12px; color: #aaa;">${macro.kcal} kcal</span>
+  </div>
+</div>
+`
     }
   }
 }
