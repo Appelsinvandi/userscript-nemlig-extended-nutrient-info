@@ -1,11 +1,11 @@
 // ==UserScript==
 // @name         Nemlig macronutrients
 // @namespace    https://www.nemlig.com/
-// @version      1.0.9
+// @version      1.0.10
 // @description  Add macronutrient info to nemlig.com
 // @author       Appensinvandi
-// @updateURL    https://raw.githubusercontent.com/Appelsinvandi/userscript-nemlig-macronutrients/main/userscript.js
-// @downloadURL  https://raw.githubusercontent.com/Appelsinvandi/userscript-nemlig-macronutrients/main/userscript.js
+// @updateURL    https://raw.githubusercontent.com/Appelsinvandi/userscript-nemlig-macronutrients/version/1.x.x/userscript.js
+// @downloadURL  https://raw.githubusercontent.com/Appelsinvandi/userscript-nemlig-macronutrients/version/1.x.x/userscript.js
 // @match        https://www.nemlig.com/*
 // @grant        none
 // ==/UserScript==
@@ -13,14 +13,23 @@
 run()
 
 function run() {
-  setInterval(() => {
-    if (shouldRenderMacros()) {
-      renderMacros()
-    }
-  }, 250)
+  setInterval(render, 250)
 }
 
-function renderMacros() {
+function render() {
+  if (!shouldRender()) return null
+
+  const containerElement = document.createElement('div')
+  containerElement.innerHTML = generateMacrosHTML()
+
+  document.querySelector('product-detail-declaration table.table').parentElement.append(generateStatsHTML(macros))
+}
+
+function shouldRender() {
+  return document.querySelector('product-detail-declaration table.table tr.table__row') != null && document.querySelector('div.macros') == null
+}
+
+function generateMacrosHTML() {
   let decs = parseNutrients()
   let kcal = decs.energy.kcal
   let carb = decs.carbohydrate.total
@@ -29,18 +38,22 @@ function renderMacros() {
 
   if (kcal === 0) return null
 
-  let macros = {
-    carbs: calculateMacro(carb, 4),
-    proteins: calculateMacro(protein, 4),
-    fats: calculateMacro(fat, 9),
-  }
+  let macros = { carbs: calculateMacro(carb, 4), proteins: calculateMacro(protein, 4), fats: calculateMacro(fat, 9) }
   // Correct pct inconsistencies
   const totalPct = macros.carbs.pct + macros.proteins.pct + macros.fats.pct
   if (totalPct !== 100) {
     macros.fats.pct -= totalPct - 100
   }
 
-  document.querySelector('product-detail-declaration table.table').parentElement.append(generateStatsHtml(macros))
+  return `
+<div class="macros" style="display: grid; grid-auto-flow: column; gap: 16px; justify-content: center; align-items: center; width: 100%;">
+  ${
+    generateMacroStatHTML('Carbs', macros.carbs, '#E3D3A3') +
+    generateMacroStatHTML('Proteins', macros.proteins, '#926C96') +
+    generateMacroStatHTML('Fats', macros.fats, '#74968E')
+  }
+</div>
+`
 
   function calculateMacro(macroAmount, kcalRatio) {
     let total = carb * 4 + protein * 4 + fat * 9
@@ -51,28 +64,13 @@ function renderMacros() {
     }
   }
 
-  function processDec(dec) {
-    const value = dec.replace(/^.*?([\d,]+)\D+$/, '$1')
-    return Number((value ?? '').replace(/,/, '.'))
-  }
-
-  function generateStatsHtml(macros) {
+  function generateMacroStatHTML(name, macro, color) {
     const flexCenter = 'display: flex; flex-flow: column nowrap; justify-content: center; align-items: center;'
+    const size = 80
+    const doughnutWidth = 2
+    const conicGradient = `background: conic-gradient(${color}ff ${Math.round((macro.pct / 100) * 360)}deg, ${color}20 0deg);`
 
-    const statsElement = document.createElement('div')
-    statsElement.classList.add('macros')
-    statsElement.style = 'display: grid; grid-auto-flow: column; gap: 16px; justify-content: center; align-items: center; width: 100%;'
-    statsElement.innerHTML =
-      createStat('Carbs', macros.carbs, '#E3D3A3') + createStat('Proteins', macros.proteins, '#926C96') + createStat('Fats', macros.fats, '#74968E')
-
-    return statsElement
-
-    function createStat(name, macro, color) {
-      let size = 80
-      let doughnutWidth = 2
-      let conicGradient = `background: conic-gradient(${color}ff ${Math.round((macro.pct / 100) * 360)}deg, ${color}20 0deg);`
-
-      return `
+    return `
 <div style="${flexCenter} width: ${size}px; height: ${size}px; border-radius: 50%; ${conicGradient}">
   <div style="${flexCenter} width: ${size - doughnutWidth * 2}px; height: ${size - doughnutWidth * 2}px; background-color: white; border-radius: 50%;">
     <span style="font-size: 12px;">${name}</span>
@@ -81,12 +79,7 @@ function renderMacros() {
   </div>
 </div>
 `
-    }
   }
-}
-
-function shouldRenderMacros() {
-  return document.querySelector('product-detail-declaration table.table tr.table__row') != null && document.querySelector('div.macros') == null
 }
 
 function parseNutrients() {
@@ -125,6 +118,12 @@ function parseNutrients() {
   }
 
   function processValue(v) {
-    return v != null ? Number(String(v).replace(/[^0-9,.]/gi, '').replace(/,/gi, '.')) : undefined
+    return v != null
+      ? Number(
+          String(v)
+            .replace(/[^0-9,.]/gi, '')
+            .replace(/,/gi, '.')
+        )
+      : undefined
   }
 }
