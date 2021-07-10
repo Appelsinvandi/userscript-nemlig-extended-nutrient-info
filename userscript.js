@@ -1,7 +1,7 @@
 // ==UserScript==
-// @name         Nemlig macronutrients
+// @name         Nemlig Macronutrients
 // @namespace    https://www.nemlig.com/
-// @version      1.0.12
+// @version      1.0.13
 // @description  Add macronutrient info to nemlig.com
 // @author       Appensinvandi
 // @updateURL    https://raw.githubusercontent.com/Appelsinvandi/userscript-nemlig-extended-nutrient-info/version/1.x.x/userscript.js
