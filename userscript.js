@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Nemlig Extended Nutrient Info
 // @namespace    https://www.nemlig.com/
-// @version      2.0.0
+// @version      2.1.0
 // @description  Add extra nutrition info to nemlig.com
 // @author       Appensinvandi
 // @updateURL    https://raw.githubusercontent.com/Appelsinvandi/userscript-nemlig-macronutrients/main/userscript.js
@@ -20,25 +20,32 @@ const AdvisoryLevel = {
 
 const dailyIntake = {
   energy: 2500,
+  saturatedFat: (energy, saturatedFat) => {
+    const energyPart = energy / 2500
+    const threshold = (pct) => (2500 / 9) * pct
+
+    if (saturatedFat > energyPart * threshold(0.15)) return { level: AdvisoryLevel.VERY_BAD, message: 'Very high in saturated fat' }
+    else if (saturatedFat > energyPart * threshold(0.10)) return { level: AdvisoryLevel.BAD, message: 'High in saturated fat' }
+  },
   sugar: (energy, sugar) => {
     const energyPart = energy / 2500
     const threshold = (pct) => (2500 / 4) * pct
 
-    if (sugar > energyPart * threshold(0.15)) return { level: AdvisoryLevel.VERY_BAD, message: 'Very high sugar levels' }
-    else if (sugar > energyPart * threshold(0.1)) return { level: AdvisoryLevel.BAD, message: 'High sugar levels' }
-  },
-  salt: (energy, salt) => {
-    const energyPart = energy / 2500
-
-    if (salt > energyPart * 8) return { level: AdvisoryLevel.VERY_BAD, message: 'Very high salt levels' }
-    else if (salt > energyPart * 6) return { level: AdvisoryLevel.BAD, message: 'High salt levels' }
+    if (sugar > energyPart * threshold(0.15)) return { level: AdvisoryLevel.VERY_BAD, message: 'Very high in sugar' }
+    else if (sugar > energyPart * threshold(0.1)) return { level: AdvisoryLevel.BAD, message: 'High in sugar' }
   },
   dietaryFiber: (energy, dietaryFiber) => {
     const energyPart = energy / 2500
     const threshold = (pct) => (2500 / 250) * 3 * pct
 
-    if (dietaryFiber > energyPart * threshold(1)) return { level: AdvisoryLevel.VERY_GOOD, message: 'Very high fiber levels' }
-    else if (dietaryFiber > threshold(1.25)) return { level: AdvisoryLevel.GOOD, message: 'High fiber levels' }
+    if (dietaryFiber > energyPart * threshold(1.25)) return { level: AdvisoryLevel.VERY_GOOD, message: 'Very high in fiber' }
+    else if (dietaryFiber > energyPart * threshold(1)) return { level: AdvisoryLevel.GOOD, message: 'High in fiber' }
+  },
+  salt: (energy, salt) => {
+    const energyPart = energy / 2500
+
+    if (salt > energyPart * 8) return { level: AdvisoryLevel.VERY_BAD, message: 'Very high in salt' }
+    else if (salt > energyPart * 6) return { level: AdvisoryLevel.BAD, message: 'High in salt' }
   },
 }
 
@@ -82,6 +89,7 @@ function generateAdvisorHTML() {
   let decs = parseNutrients()
 
   let advisories = [
+    dailyIntake.saturatedFat(decs.energy.kcal, decs.fat.saturated),
     dailyIntake.dietaryFiber(decs.energy.kcal, decs.carbohydrate.dietaryFiber),
     dailyIntake.sugar(decs.energy.kcal, decs.carbohydrate.sugar),
     dailyIntake.salt(decs.energy.kcal, decs.salt),
