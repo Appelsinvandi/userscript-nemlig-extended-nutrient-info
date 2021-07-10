@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Nemlig macronutrients
 // @namespace    https://www.nemlig.com/
-// @version      1.0.11
+// @version      1.0.12
 // @description  Add macronutrient info to nemlig.com
 // @author       Appensinvandi
 // @updateURL    https://raw.githubusercontent.com/Appelsinvandi/userscript-nemlig-extended-nutrient-info/version/1.x.x/userscript.js
@@ -20,13 +20,14 @@ function render() {
   if (!shouldRender()) return null
 
   const containerElement = document.createElement('div')
+  containerElement.id = "MacrosContainer"
   containerElement.innerHTML = generateMacrosHTML()
 
-  document.querySelector('product-detail-declaration table.table').parentElement.append(generateStatsHTML(macros))
+  document.querySelector('product-detail-declaration table.table').parentElement.append(containerElement)
 }
 
 function shouldRender() {
-  return document.querySelector('product-detail-declaration table.table tr.table__row') != null && document.querySelector('div.macros') == null
+  return document.querySelector('product-detail-declaration table.table tr.table__row') != null && document.getElementById('MacrosContainer') == null
 }
 
 function generateMacrosHTML() {
