@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Nemlig Extended Nutrient Info
 // @namespace    https://www.nemlig.com/
-// @version      2.1.0
+// @version      2.1.1
 // @description  Add extra nutrition info to nemlig.com
 // @author       Appensinvandi
 // @updateURL    https://raw.githubusercontent.com/Appelsinvandi/userscript-nemlig-macronutrients/main/userscript.js
@@ -71,7 +71,7 @@ function render() {
     `z-index: 10`,
     'bottom: 0',
     'left: 8px',
-    'border-radius: 8px 8px 0 0',
+    'border-radius: 4px 4px 0 0',
     'padding: 16px 20px 24px',
     'width: 296px',
     'background-color: white',
