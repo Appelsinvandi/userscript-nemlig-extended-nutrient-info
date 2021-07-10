@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Nemlig macronutrients
 // @namespace    https://www.nemlig.com/
-// @version      1.0.8
+// @version      1.0.9
 // @description  Add macronutrient info to nemlig.com
 // @author       Appensinvandi
 // @updateURL    https://raw.githubusercontent.com/Appelsinvandi/userscript-nemlig-macronutrients/main/userscript.js
@@ -14,18 +14,18 @@ run()
 
 function run() {
   setInterval(() => {
-    if (document.querySelector('table.table') != null && document.querySelector('table.table + div.macros') == null) {
-      addInfo()
+    if (shouldRenderMacros()) {
+      renderMacros()
     }
   }, 250)
 }
 
-function addInfo() {
-  let decs = Array.from(document.querySelectorAll('table.table tr.table__row')).map((e) => Array.from(e.querySelectorAll('td.table__col')).map((e) => e.innerText.trim()))
-  let kcal = processDec(decs.find(([k, v]) => k === 'Energi')[1] ?? '')
-  let carb = processDec(decs.find(([k, v]) => k === 'Kulhydrat')[1] ?? '')
-  let protein = processDec(decs.find(([k, v]) => k === 'Protein')[1] ?? '')
-  let fat = processDec(decs.find(([k, v]) => k === 'Fedt')[1] ?? '')
+function renderMacros() {
+  let decs = parseNutrients()
+  let kcal = decs.energy.kcal
+  let carb = decs.carbohydrate.total
+  let fat = decs.fat.total
+  let protein = decs.protein
 
   if (kcal === 0) return null
 
@@ -40,7 +40,7 @@ function addInfo() {
     macros.fats.pct -= totalPct - 100
   }
 
-  document.querySelector('table.table').parentElement.append(generateStatsHtml(macros))
+  document.querySelector('product-detail-declaration table.table').parentElement.append(generateStatsHtml(macros))
 
   function calculateMacro(macroAmount, kcalRatio) {
     let total = carb * 4 + protein * 4 + fat * 9
@@ -62,7 +62,8 @@ function addInfo() {
     const statsElement = document.createElement('div')
     statsElement.classList.add('macros')
     statsElement.style = 'display: grid; grid-auto-flow: column; gap: 16px; justify-content: center; align-items: center; width: 100%;'
-    statsElement.innerHTML = createStat('Carbs', macros.carbs, '#E3D3A3') + createStat('Proteins', macros.proteins, '#926C96') + createStat('Fats', macros.fats, '#74968E')
+    statsElement.innerHTML =
+      createStat('Carbs', macros.carbs, '#E3D3A3') + createStat('Proteins', macros.proteins, '#926C96') + createStat('Fats', macros.fats, '#74968E')
 
     return statsElement
 
@@ -81,5 +82,49 @@ function addInfo() {
 </div>
 `
     }
+  }
+}
+
+function shouldRenderMacros() {
+  return document.querySelector('product-detail-declaration table.table tr.table__row') != null && document.querySelector('div.macros') == null
+}
+
+function parseNutrients() {
+  const decsArr = Array.from(document.querySelector('product-detail-declaration table.table').querySelectorAll('tr.table__row'))
+    .map((e) => Array.from(e.querySelectorAll('td.table__col')).map((e) => e.innerText.trim().toLowerCase()))
+    .filter((e) => e.length === 2)
+    .map(([k, v]) => [k.replace(/\s+/gi, '_'), v])
+  const decs = Object.fromEntries(decsArr)
+
+  let energyValues = decs.energi.split('/').map(processValue).sort()
+
+  return {
+    ...processResEntry('energy', {
+      ...processResEntry('kcal', energyValues[1]),
+      ...processResEntry('kj', energyValues[0]),
+    }),
+    ...processResEntry('fat', {
+      ...processResEntry('total', decs.fedt),
+      ...processResEntry('saturated', decs.heraf_mættede_fedtsyrer),
+    }),
+    ...processResEntry('carbohydrate', {
+      ...processResEntry('total', decs.kulhydrat),
+      ...processResEntry('dietaryFiber', decs.kostfibre),
+      ...processResEntry('sugar', decs.heraf_sukkerarter),
+    }),
+    ...processResEntry('protein', decs.protein),
+    ...processResEntry('salt', decs.salt),
+  }
+
+  function processResEntry(name, value) {
+    if (typeof value === 'string' || typeof value === 'number' || value == null) {
+      return value != null ? { [name]: processValue(value) } : null
+    } else {
+      return Object.keys(value).length > 0 ? { [name]: value } : null
+    }
+  }
+
+  function processValue(v) {
+    return v != null ? Number(String(v).replace(/[^0-9,.]/gi, '').replace(/,/gi, '.')) : undefined
   }
 }
