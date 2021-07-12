@@ -1,0 +1,15 @@
+{
+  "name": "userscript-nemlig-extended-nutrient-info",
+  "version": "2.2.0",
+  "repository": "https://github.com/Appelsinvandi/userscript-nemlig-extended-nutrient-info.git",
+  "author": "Morten Jelle <1551620+Appelsinvandi@users.noreply.github.com>",
+  "license": "MIT",
+  "scripts": {
+    "build": "node ./build.js"
+  },
+  "devDependencies": {
+    "esbuild": "^0.12.15",
+    "tslib": "^2.3.0",
+    "typescript": "^4.3.5"
+  }
+}

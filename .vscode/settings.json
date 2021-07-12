@@ -1,0 +1,4 @@
+{
+  "exportall.config.folderListener": ["/src/constant", "/src/type", "/src/util", "/src/render"],
+  "cSpell.words": ["macronutrients", "macronutrient"]
+}
