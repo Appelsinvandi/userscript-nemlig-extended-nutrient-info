@@ -7,8 +7,18 @@ export function renderAdvisory() {
 
   let advisories = genAdvisories(nutritionDeclarations)
 
-  const listHtml = advisories.map(({ level, message }) => `<span>${AdvisoryLevelIcon[level]} ${message}</span>`).join('')
+  const listHtml = advisories
+    .map(
+      ({ level, title, levelText: levelText }) => `
+<span style="display: grid; grid-auto-flow: row; grid-gap: 2px; align-items: center; justify-items: center;">
+  <span> ${AdvisoryLevelIcon[level]} </span>
+  <span style="font-weight: bold;"> ${title} </span>
+  <span> ${levelText} </span>
+</span>
+`
+    )
+    .join('')
   return listHtml !== ''
-    ? `<div id="ExtNutriInfoAsvisorContainer" style="display: grid; grid-template-columns: 1fr 1fr; grid-gap: 8px;"> ${listHtml} </div>`
+    ? `<div id="ExtNutriInfoAdvisorContainer" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(45%, 1fr)); grid-gap: 8px;"> ${listHtml} </div>`
     : null
 }

@@ -38,7 +38,7 @@ export const parseNutrientDeclarations: () => NutritionDeclaration | null = () =
     }),
     ...processResEntry('carbohydrate', {
       ...processResEntry('total', decs.kulhydrat),
-      ...processResEntry('dietaryFiber', decs.kostfibre),
+      ...processResEntry('fiber', decs.kostfibre),
       ...processResEntry('sugar', decs.heraf_sukkerarter),
     }),
     ...processResEntry('protein', decs.protein),

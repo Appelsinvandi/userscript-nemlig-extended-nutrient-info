@@ -1,11 +1,13 @@
 // ==UserScript==
 // @name         Nemlig Extended Nutrient Info
 // @namespace    https://www.nemlig.com/
-// @version      2.2.0
+// @version      2.3.0
 // @description  Add extra nutrition info to nemlig.com
-// @author       Appensinvandi
-// @updateURL    https://raw.githubusercontent.com/Appelsinvandi/userscript-nemlig-macronutrients/main/userscript.js
-// @downloadURL  https://raw.githubusercontent.com/Appelsinvandi/userscript-nemlig-macronutrients/main/userscript.js
+// @homepage     https://github.com/Appelsinvandi/userscript-nemlig-extended-nutrient-info
+// @supportURL   https://github.com/Appelsinvandi/userscript-nemlig-extended-nutrient-info/issues
+// @author       Morten Jelle <1551620+Appelsinvandi@users.noreply.github.com>
+// @updateURL    https://raw.githubusercontent.com/Appelsinvandi/userscript-nemlig-extended-nutrient-info/main/userscript.js
+// @downloadURL  https://raw.githubusercontent.com/Appelsinvandi/userscript-nemlig-extended-nutrient-info/main/userscript.js
 // @match        https://www.nemlig.com/*
 // @icon         https://www.google.com/s2/favicons?domain=nemlig.com
 // @grant        none
@@ -46,6 +48,73 @@
     [AdvisoryLevel.VERY_GOOD]: "\u{1F60D}"
   });
 
+  // src/constant/allergyConstants.ts
+  var Allergy;
+  (function(Allergy2) {
+    Allergy2["EGG"] = "EGG";
+    Allergy2["FISH"] = "FISH";
+    Allergy2["LACTOSE"] = "LACTOSE";
+    Allergy2["PEANUT"] = "PEANUT";
+    Allergy2["SESAME"] = "SESAME";
+    Allergy2["SHELLFISH"] = "SHELLFISH";
+    Allergy2["SOY"] = "SOY";
+    Allergy2["TREE_NUT"] = "TREE_NUT";
+    Allergy2["WHEAT"] = "WHEAT";
+  })(Allergy || (Allergy = {}));
+  var Allergies = Object.freeze({
+    [Allergy.EGG]: {
+      name: "Egg",
+      icon: "\u{1F95A}",
+      match: matchHof([/\bæg\b/, /\bægge/])
+    },
+    [Allergy.FISH]: {
+      name: "Fish",
+      icon: "\u{1F41F}",
+      match: matchHof(["fisk", "laks", "tun", "torsk", "r\xF8dsp\xE6tte", "skrubbe", "kulmule", /(guld|hav|mørk)(bars|taske|sej|kat)/])
+    },
+    [Allergy.LACTOSE]: {
+      name: "Milk",
+      icon: "\u{1F37C}",
+      match: matchHof([/(?<!laktosefri *)mælk(?!esyre)/, /laktose(?! *fri)/, /(?<!laktosefri *)fløde/, /(?<!laktosefri *)smør/])
+    },
+    [Allergy.PEANUT]: {
+      name: "Peanut",
+      icon: "\u{1F95C}",
+      match: matchHof(["jordn\xF8d", "peanut"])
+    },
+    [Allergy.SESAME]: {
+      name: "Sesame",
+      icon: "\u{1F331}",
+      match: matchHof(["sesam"])
+    },
+    [Allergy.SHELLFISH]: {
+      name: "Shellfish",
+      icon: "\u{1F990}",
+      match: matchHof(["skaldyr", "rejer", "krebs", "hummer", "krabbe", "musling", /østers(?!ø)/])
+    },
+    [Allergy.SOY]: {
+      name: "Soy",
+      icon: "\u{1F333}",
+      match: matchHof(["soja"])
+    },
+    [Allergy.TREE_NUT]: {
+      name: "Tree nut",
+      icon: "\u{1F330}",
+      match: matchHof(["valn\xF8d", "mandle", "hassel", "cashew", "pistacie"])
+    },
+    [Allergy.WHEAT]: {
+      name: "Wheat",
+      icon: "\u{1F33E}",
+      match: matchHof(["hvede"])
+    }
+  });
+  function matchHof(searches) {
+    return (ingredients) => {
+      const testString = Array.isArray(ingredients) ? ingredients.join(" ") : ingredients;
+      return searches.some((e) => new RegExp(e, "gi").test(testString));
+    };
+  }
+
   // src/constant/nutritionConstants.ts
   var Macronutrient;
   (function(Macronutrient2) {
@@ -65,36 +134,37 @@
     const energyPart = itemEnergy / DailyIntakeEnergy;
     const threshold = (pct) => DailyIntakeEnergy / 9 * pct;
     if (itemSaturatedFat > energyPart * threshold(0.15)) {
-      return { level: AdvisoryLevel.VERY_BAD, message: "Very high in saturated fat" };
+      return { level: AdvisoryLevel.VERY_BAD, title: "Saturated fat", levelText: "Very high" };
     } else if (itemSaturatedFat > energyPart * threshold(0.1)) {
-      return { level: AdvisoryLevel.BAD, message: "High in saturated fat" };
+      return { level: AdvisoryLevel.BAD, title: "Saturated fat", levelText: "High" };
     }
   };
   var genAdvisorySugar = (itemEnergy, itemSugar) => {
     const energyPart = itemEnergy / DailyIntakeEnergy;
     const threshold = (pct) => DailyIntakeEnergy / 4 * pct;
     if (itemSugar > energyPart * threshold(0.15)) {
-      return { level: AdvisoryLevel.VERY_BAD, message: "Very high in sugar" };
+      return { level: AdvisoryLevel.VERY_BAD, title: "Sugar", levelText: "Very high" };
     } else if (itemSugar > energyPart * threshold(0.1)) {
-      return { level: AdvisoryLevel.BAD, message: "High in sugar" };
+      return { level: AdvisoryLevel.BAD, title: "Sugar", levelText: "High" };
     }
   };
   var genAdvisoryFiber = (itemEnergy, itemFiber) => {
     const energyPart = itemEnergy / DailyIntakeEnergy;
     const threshold = (pct) => DailyIntakeEnergy / 250 * 3 * pct;
+    console.log(energyPart * threshold(1));
     if (itemFiber > energyPart * threshold(1.25)) {
-      return { level: AdvisoryLevel.VERY_GOOD, message: "Very high in fiber" };
+      return { level: AdvisoryLevel.VERY_GOOD, title: "Fiber", levelText: "Very high" };
     } else if (itemFiber > energyPart * threshold(1)) {
-      return { level: AdvisoryLevel.GOOD, message: "High in fiber" };
+      return { level: AdvisoryLevel.GOOD, title: "Fiber", levelText: "High" };
     }
   };
   var genAdvisorySalt = (itemEnergy, itemSalt) => {
     const energyPart = itemEnergy / DailyIntakeEnergy;
     const threshold = (grams) => energyPart * grams;
     if (itemSalt > threshold(8)) {
-      return { level: AdvisoryLevel.VERY_BAD, message: "Very high in salt" };
+      return { level: AdvisoryLevel.VERY_BAD, title: "Salt", levelText: "Very high" };
     } else if (itemSalt > threshold(6)) {
-      return { level: AdvisoryLevel.BAD, message: "High in salt" };
+      return { level: AdvisoryLevel.BAD, title: "Salt", levelText: "High" };
     }
   };
   var genAdvisories = (nutritionDeclaration) => {
@@ -111,6 +181,13 @@
   };
 
   // src/util/parseUtils.ts
+  var parseIngredients = () => {
+    const ingredientsElement = document.querySelector("product-detail-declaration div.product-detail__declaration-label");
+    if (ingredientsElement == null)
+      return null;
+    const ingredientsText = ingredientsElement.innerText.split("\n").filter((e) => !/^\s*$/.test(e) && !/\bspor\b *\baf\b/gi.test(e)).join("\n");
+    return ingredientsText;
+  };
   var parseNutrientDeclarations = () => {
     const nutritionDeclarationTableElement = document.querySelector("product-detail-declaration table.table");
     if (nutritionDeclarationTableElement == null)
@@ -118,7 +195,7 @@
     const rawDeclarationsArr = Array.from(nutritionDeclarationTableElement.querySelectorAll("tr.table__row")).map((e) => Array.from(e.querySelectorAll("td.table__col")).map((e2) => e2.innerText.trim().toLowerCase())).filter((e) => e.length === 2).map(([k, v]) => [k.replace(/\s+/gi, "_"), v]);
     const decs = Object.fromEntries(rawDeclarationsArr);
     let energyValues = decs.energi.split("/").map((v) => processValue(v)).sort((a, b) => a - b);
-    return __spreadValues(__spreadValues(__spreadValues(__spreadValues(__spreadValues({}, processResEntry("energy", __spreadValues(__spreadValues({}, processResEntry("kcal", energyValues[0])), processResEntry("kj", energyValues[1])))), processResEntry("fat", __spreadValues(__spreadValues({}, processResEntry("total", decs.fedt)), processResEntry("saturated", decs.heraf_m\u00E6ttede_fedtsyrer)))), processResEntry("carbohydrate", __spreadValues(__spreadValues(__spreadValues({}, processResEntry("total", decs.kulhydrat)), processResEntry("dietaryFiber", decs.kostfibre)), processResEntry("sugar", decs.heraf_sukkerarter)))), processResEntry("protein", decs.protein)), processResEntry("salt", decs.salt));
+    return __spreadValues(__spreadValues(__spreadValues(__spreadValues(__spreadValues({}, processResEntry("energy", __spreadValues(__spreadValues({}, processResEntry("kcal", energyValues[0])), processResEntry("kj", energyValues[1])))), processResEntry("fat", __spreadValues(__spreadValues({}, processResEntry("total", decs.fedt)), processResEntry("saturated", decs.heraf_m\u00E6ttede_fedtsyrer)))), processResEntry("carbohydrate", __spreadValues(__spreadValues(__spreadValues({}, processResEntry("total", decs.kulhydrat)), processResEntry("fiber", decs.kostfibre)), processResEntry("sugar", decs.heraf_sukkerarter)))), processResEntry("protein", decs.protein)), processResEntry("salt", decs.salt));
     function processResEntry(name, value) {
       if (typeof value === "string" || typeof value === "number" || value == null) {
         return value != null ? { [name]: processValue(value) } : null;
@@ -137,8 +214,29 @@
     if (nutritionDeclarations == null)
       return null;
     let advisories = genAdvisories(nutritionDeclarations);
-    const listHtml = advisories.map(({ level, message }) => `<span>${AdvisoryLevelIcon[level]} ${message}</span>`).join("");
-    return listHtml !== "" ? `<div id="ExtNutriInfoAsvisorContainer" style="display: grid; grid-template-columns: 1fr 1fr; grid-gap: 8px;"> ${listHtml} </div>` : null;
+    const listHtml = advisories.map(({ level, title, levelText }) => `
+<span style="display: grid; grid-auto-flow: row; grid-gap: 2px; align-items: center; justify-items: center;">
+  <span> ${AdvisoryLevelIcon[level]} </span>
+  <span style="font-weight: bold;"> ${title} </span>
+  <span> ${levelText} </span>
+</span>
+`).join("");
+    return listHtml !== "" ? `<div id="ExtNutriInfoAdvisorContainer" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(45%, 1fr)); grid-gap: 8px;"> ${listHtml} </div>` : null;
+  }
+
+  // src/render/allergyRenders.ts
+  function renderAllergy() {
+    let ingredients = parseIngredients();
+    if (ingredients == null)
+      return null;
+    let allergies = Object.values(Allergies).map((a) => a.match(ingredients) ? a : null).filter((n) => n != null);
+    const listHtml = allergies.map(({ name, icon }) => `
+<span style="display: grid; grid-auto-flow: row; grid-gap: 2px; align-items: center; justify-items: center;">
+  <span> ${icon} </span>
+  <span style="font-weight: bold;"> ${name} </span>
+</span>
+`).join("");
+    return listHtml !== "" ? `<div id="ExtNutriInfoAllergyContainer" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(20%, 1fr)); grid-gap: 8px;"> ${listHtml} </div>` : null;
   }
 
   // src/render/macronutritionRenders.ts
@@ -192,7 +290,7 @@
   }
 
   // src/render/separatorRender.ts
-  var renderSeparatorStyles = ["margin: 16px auto 20px", "border: none", "border-top: 1px solid lightgrey", "width: 80%"].join("; ");
+  var renderSeparatorStyles = ["margin: 16px auto 20px", "border: none", "border-top: 1px solid lightgrey", "width: 95%"].join("; ");
   function renderSeparator() {
     return `<hr style="${renderSeparatorStyles};" />`;
   }
@@ -220,7 +318,7 @@
       "background-color: white",
       "box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px"
     ].join("; "));
-    containerElement.innerHTML = [renderAdvisory(), renderMacronutrients()].filter(Boolean).join(renderSeparator());
+    containerElement.innerHTML = [renderAllergy(), renderAdvisory(), renderMacronutrients()].filter(Boolean).join(renderSeparator());
     document.querySelector("product-detail").append(containerElement);
   }
 })();

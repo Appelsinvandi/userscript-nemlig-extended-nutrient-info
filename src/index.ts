@@ -10,7 +10,7 @@
 // @grant        none
 // ==/UserScript==
 
-import { renderAdvisory, renderMacronutrients, renderSeparator } from './render'
+import { renderAdvisory, renderAllergy, renderMacronutrients, renderSeparator } from './render'
 
 setInterval(() => {
   render()
@@ -45,7 +45,7 @@ function render() {
     ].join('; ')
   )
 
-  containerElement.innerHTML = [renderAdvisory(), renderMacronutrients()].filter(Boolean).join(renderSeparator())
+  containerElement.innerHTML = [renderAllergy(), renderAdvisory(), renderMacronutrients()].filter(Boolean).join(renderSeparator())
 
   document.querySelector('product-detail')!.append(containerElement)
 }

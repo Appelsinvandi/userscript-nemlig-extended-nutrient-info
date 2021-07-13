@@ -2,7 +2,8 @@ import { AdvisoryLevel } from '../constant'
 
 export interface NutritionAdvisory {
   level: AdvisoryLevel
-  message: string
+  title: string
+  levelText: string
 }
 
 export type AdvisoryGeneratorFunction = (itemEnergy: number, itemNutrition: number) => NutritionAdvisory | null | undefined | void
