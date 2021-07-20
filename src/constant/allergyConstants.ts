@@ -12,21 +12,89 @@ export enum Allergy {
   WHEAT = 'WHEAT',
 }
 
+const allCharsGroupRev = '[^\\w\\u00A0-\\uD7FF\\uF900-\\uFDCF\\uFDF0-\\uFFEF]'
+const nonCharPre = `(${allCharsGroupRev}|^)`
+const nonCharPost = `(${allCharsGroupRev}|$)`
+
 export const Allergies = Object.freeze<{ [key in Allergy]: AllergyInfo }>({
   [Allergy.EGG]: {
     name: 'Egg',
     icon: '🥚',
-    match: matchHof([/\bæg\b/, /\bægge/]),
+    match: matchHof([
+      //
+      new RegExp(`${nonCharPre}(skrabe|frilands|hel)?(æg)(ge)?(hvide|blomme)?(pulver)?(r|er)?${nonCharPost}`),
+    ]),
   },
   [Allergy.FISH]: {
     name: 'Fish',
     icon: '🐟',
-    match: matchHof(['fisk', 'laks', 'tun', 'torsk', 'rødspætte', 'skrubbe', 'kulmule', /(guld|hav|mørk)(bars|taske|sej|kat)/]),
+    match: matchHof([
+      //
+      'fisk',
+      'laks',
+      'tun',
+      'torsk',
+      'rødspætte',
+      'skrubbe',
+      'kulmule',
+      new RegExp(`(guld|hav|mørk)(bars|taske|sej|kat)`),
+    ]),
   },
   [Allergy.LACTOSE]: {
     name: 'Milk',
     icon: '🍼',
-    match: matchHof([/(?<!laktosefri *)mælk(?!esyre)/, /laktose(?! *fri)/, /(?<!laktosefri *)fløde/, /(?<!laktosefri *)smør/]),
+    match: matchHof([
+      new RegExp(`laktose(?!.?fri)`),
+      // https://regex101.com/r/ULUQbg/1
+      new RegExp(
+        [
+          '(?<!laktose.?fri *)',
+          nonCharPre,
+          '(pasteuriseret)?',
+          '(skummet|mini|let|sød|tyk|kærne)?',
+          '(ko|bøffel|gede|fåre)?',
+          // Main
+          '(mælk|valle)',
+          '(s|e)?',
+          '(permeat)?',
+          '(pulver|protein|syre|fedtstof)?',
+          '(r|er|.er)?',
+          '(kultur|koncentrat)?',
+          nonCharPost,
+        ].join('')
+      ),
+      new RegExp(
+        [
+          '(?<!laktose.?fri *)',
+          nonCharPre,
+          '(piske)?',
+          // Main
+          '(fløde)',
+          nonCharPost,
+        ].join('')
+      ),
+      new RegExp(
+        [
+          '(?<!laktose.?fri *)',
+          nonCharPre,
+          // Main
+          '(smær)',
+          nonCharPost,
+        ].join('')
+      ),
+      new RegExp(
+        [
+          '(?<!laktose.?fri *)',
+          nonCharPre,
+          '(fløde|mozzarella|gede|fåre)?',
+          // Main
+          '(ost)',
+          '(e)?',
+          '(løbe)?',
+          nonCharPost,
+        ].join('')
+      ),
+    ]),
   },
   [Allergy.PEANUT]: {
     name: 'Peanut',
@@ -41,7 +109,16 @@ export const Allergies = Object.freeze<{ [key in Allergy]: AllergyInfo }>({
   [Allergy.SHELLFISH]: {
     name: 'Shellfish',
     icon: '🦐',
-    match: matchHof(['skaldyr', 'rejer', 'krebs', 'hummer', 'krabbe', 'musling', /østers(?!ø)/]),
+    match: matchHof([
+      //
+      'skaldyr',
+      'rejer',
+      'krebs',
+      'hummer',
+      'krabbe',
+      'musling',
+      new RegExp(`østers${nonCharPost}`),
+    ]),
   },
   [Allergy.SOY]: {
     name: 'Soy',

@@ -5,9 +5,8 @@ export const parseIngredients = () => {
   if (ingredientsElement == null) return null
 
   const ingredientsText = ingredientsElement.innerText
-    .split('\n')
-    .filter((e) => !/^\s*$/.test(e) && !/\bspor\b *\baf\b/gi.test(e))
-    .join('\n')
+    .replace(/(\([^()]*)indeholde *spor([^(]*\))/gi, '')
+    .replace(/(^[^\n\r]*)indeholde *spor([^\n\r]*$)/gim, '')
 
   return ingredientsText
 }

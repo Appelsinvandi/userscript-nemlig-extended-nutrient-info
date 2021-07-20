@@ -1,14 +1,12 @@
 import { Allergies } from '../constant'
-import { AllergyInfo } from '../type'
 import { parseIngredients } from '../util'
 
 export function renderAllergy() {
   let ingredients = parseIngredients()
   if (ingredients == null) return null
 
-  let allergies = Object.values(Allergies)
-    .map((a) => (a.match(ingredients!) ? a : null))
-    .filter((n) => n != null) as AllergyInfo[]
+  let allergies = Object.values(Allergies).filter((a) => a.match(ingredients!))
+  if (allergies.length === 0) return null
 
   const listHtml = allergies
     .map(

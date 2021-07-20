@@ -1,15 +1,3 @@
-// ==UserScript==
-// @name         Nemlig Extended Nutrient Info
-// @namespace    https://www.nemlig.com/
-// @version      2.2.0
-// @description  Add extra nutrition info to nemlig.com
-// @author       Appensinvandi
-// @updateURL    https://raw.githubusercontent.com/Appelsinvandi/userscript-nemlig-macronutrients/main/userscript.js
-// @downloadURL  https://raw.githubusercontent.com/Appelsinvandi/userscript-nemlig-macronutrients/main/userscript.js
-// @match        https://www.nemlig.com/*
-// @grant        none
-// ==/UserScript==
-
 import { renderAdvisory, renderAllergy, renderMacronutrients, renderSeparator } from './render'
 
 setInterval(() => {
@@ -45,7 +33,12 @@ function render() {
     ].join('; ')
   )
 
-  containerElement.innerHTML = [renderAllergy(), renderAdvisory(), renderMacronutrients()].filter(Boolean).join(renderSeparator())
+  const renderedContent = [renderAllergy(), renderAdvisory(), renderMacronutrients()].filter(Boolean)
+  containerElement.innerHTML = renderedContent.join(renderSeparator())
+
+  if (renderedContent.length === 0) {
+    containerElement.style.display = 'none'
+  }
 
   document.querySelector('product-detail')!.append(containerElement)
 }

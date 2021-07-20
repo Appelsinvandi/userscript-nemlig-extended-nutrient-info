@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Nemlig Extended Nutrient Info
 // @namespace    https://www.nemlig.com/
-// @version      2.3.0
+// @version      2.3.1
 // @description  Add extra nutrition info to nemlig.com
 // @homepage     https://github.com/Appelsinvandi/userscript-nemlig-extended-nutrient-info
 // @supportURL   https://github.com/Appelsinvandi/userscript-nemlig-extended-nutrient-info/issues
@@ -61,21 +61,73 @@
     Allergy2["TREE_NUT"] = "TREE_NUT";
     Allergy2["WHEAT"] = "WHEAT";
   })(Allergy || (Allergy = {}));
+  var allCharsGroupRev = "[^\\w\\u00A0-\\uD7FF\\uF900-\\uFDCF\\uFDF0-\\uFFEF]";
+  var nonCharPre = `(${allCharsGroupRev}|^)`;
+  var nonCharPost = `(${allCharsGroupRev}|$)`;
   var Allergies = Object.freeze({
     [Allergy.EGG]: {
       name: "Egg",
       icon: "\u{1F95A}",
-      match: matchHof([/\bæg\b/, /\bægge/])
+      match: matchHof([
+        new RegExp(`${nonCharPre}(skrabe|frilands|hel)?(\xE6g)(ge)?(hvide|blomme)?(pulver)?(r|er)?${nonCharPost}`)
+      ])
     },
     [Allergy.FISH]: {
       name: "Fish",
       icon: "\u{1F41F}",
-      match: matchHof(["fisk", "laks", "tun", "torsk", "r\xF8dsp\xE6tte", "skrubbe", "kulmule", /(guld|hav|mørk)(bars|taske|sej|kat)/])
+      match: matchHof([
+        "fisk",
+        "laks",
+        "tun",
+        "torsk",
+        "r\xF8dsp\xE6tte",
+        "skrubbe",
+        "kulmule",
+        new RegExp(`(guld|hav|m\xF8rk)(bars|taske|sej|kat)`)
+      ])
     },
     [Allergy.LACTOSE]: {
       name: "Milk",
       icon: "\u{1F37C}",
-      match: matchHof([/(?<!laktosefri *)mælk(?!esyre)/, /laktose(?! *fri)/, /(?<!laktosefri *)fløde/, /(?<!laktosefri *)smør/])
+      match: matchHof([
+        new RegExp(`laktose(?!.?fri)`),
+        new RegExp([
+          "(?<!laktose.?fri *)",
+          nonCharPre,
+          "(pasteuriseret)?",
+          "(skummet|mini|let|s\xF8d|tyk|k\xE6rne)?",
+          "(ko|b\xF8ffel|gede|f\xE5re)?",
+          "(m\xE6lk|valle)",
+          "(s|e)?",
+          "(permeat)?",
+          "(pulver|protein|syre|fedtstof)?",
+          "(r|er|.er)?",
+          "(kultur|koncentrat)?",
+          nonCharPost
+        ].join("")),
+        new RegExp([
+          "(?<!laktose.?fri *)",
+          nonCharPre,
+          "(piske)?",
+          "(fl\xF8de)",
+          nonCharPost
+        ].join("")),
+        new RegExp([
+          "(?<!laktose.?fri *)",
+          nonCharPre,
+          "(sm\xE6r)",
+          nonCharPost
+        ].join("")),
+        new RegExp([
+          "(?<!laktose.?fri *)",
+          nonCharPre,
+          "(fl\xF8de|mozzarella|gede|f\xE5re)?",
+          "(ost)",
+          "(e)?",
+          "(l\xF8be)?",
+          nonCharPost
+        ].join(""))
+      ])
     },
     [Allergy.PEANUT]: {
       name: "Peanut",
@@ -90,7 +142,15 @@
     [Allergy.SHELLFISH]: {
       name: "Shellfish",
       icon: "\u{1F990}",
-      match: matchHof(["skaldyr", "rejer", "krebs", "hummer", "krabbe", "musling", /østers(?!ø)/])
+      match: matchHof([
+        "skaldyr",
+        "rejer",
+        "krebs",
+        "hummer",
+        "krabbe",
+        "musling",
+        new RegExp(`\xF8sters${nonCharPost}`)
+      ])
     },
     [Allergy.SOY]: {
       name: "Soy",
@@ -185,7 +245,7 @@
     const ingredientsElement = document.querySelector("product-detail-declaration div.product-detail__declaration-label");
     if (ingredientsElement == null)
       return null;
-    const ingredientsText = ingredientsElement.innerText.split("\n").filter((e) => !/^\s*$/.test(e) && !/\bspor\b *\baf\b/gi.test(e)).join("\n");
+    const ingredientsText = ingredientsElement.innerText.replace(/(\([^()]*)indeholde *spor([^(]*\))/gi, "").replace(/(^[^\n\r]*)indeholde *spor([^\n\r]*$)/gim, "");
     return ingredientsText;
   };
   var parseNutrientDeclarations = () => {
@@ -229,7 +289,9 @@
     let ingredients = parseIngredients();
     if (ingredients == null)
       return null;
-    let allergies = Object.values(Allergies).map((a) => a.match(ingredients) ? a : null).filter((n) => n != null);
+    let allergies = Object.values(Allergies).filter((a) => a.match(ingredients));
+    if (allergies.length === 0)
+      return null;
     const listHtml = allergies.map(({ name, icon }) => `
 <span style="display: grid; grid-auto-flow: row; grid-gap: 2px; align-items: center; justify-items: center;">
   <span> ${icon} </span>
@@ -318,7 +380,11 @@
       "background-color: white",
       "box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px"
     ].join("; "));
-    containerElement.innerHTML = [renderAllergy(), renderAdvisory(), renderMacronutrients()].filter(Boolean).join(renderSeparator());
+    const renderedContent = [renderAllergy(), renderAdvisory(), renderMacronutrients()].filter(Boolean);
+    containerElement.innerHTML = renderedContent.join(renderSeparator());
+    if (renderedContent.length === 0) {
+      containerElement.style.display = "none";
+    }
     document.querySelector("product-detail").append(containerElement);
   }
 })();
