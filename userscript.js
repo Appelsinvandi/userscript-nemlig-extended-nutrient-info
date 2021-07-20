@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Nemlig Extended Nutrient Info
 // @namespace    https://www.nemlig.com/
-// @version      2.3.1
+// @version      2.3.2
 // @description  Add extra nutrition info to nemlig.com
 // @homepage     https://github.com/Appelsinvandi/userscript-nemlig-extended-nutrient-info
 // @supportURL   https://github.com/Appelsinvandi/userscript-nemlig-extended-nutrient-info/issues
@@ -69,64 +69,24 @@
       name: "Egg",
       icon: "\u{1F95A}",
       match: matchHof([
-        new RegExp(`${nonCharPre}(skrabe|frilands|hel)?(\xE6g)(ge)?(hvide|blomme)?(pulver)?(r|er)?${nonCharPost}`)
+        new RegExp(nonCharPre + "(skrabe|frilands|hel)?(\xE6g)(ge)?(hvide|blomme)?(pulver)?(r|er)?" + nonCharPost)
       ])
     },
     [Allergy.FISH]: {
       name: "Fish",
       icon: "\u{1F41F}",
-      match: matchHof([
-        "fisk",
-        "laks",
-        "tun",
-        "torsk",
-        "r\xF8dsp\xE6tte",
-        "skrubbe",
-        "kulmule",
-        new RegExp(`(guld|hav|m\xF8rk)(bars|taske|sej|kat)`)
-      ])
+      match: matchHof(["fisk", "laks", "tun", "torsk", "r\xF8dsp\xE6tte", "skrubbe", "kulmule", new RegExp(`(guld|hav|m\xF8rk)(bars|taske|sej|kat)`)])
     },
     [Allergy.LACTOSE]: {
       name: "Milk",
       icon: "\u{1F37C}",
       match: matchHof([
         new RegExp(`laktose(?!.?fri)`),
-        new RegExp([
-          "(?<!laktose.?fri *)",
-          nonCharPre,
-          "(pasteuriseret)?",
-          "(skummet|mini|let|s\xF8d|tyk|k\xE6rne)?",
-          "(ko|b\xF8ffel|gede|f\xE5re)?",
-          "(m\xE6lk|valle)",
-          "(s|e)?",
-          "(permeat)?",
-          "(pulver|protein|syre|fedtstof)?",
-          "(r|er|.er)?",
-          "(kultur|koncentrat)?",
-          nonCharPost
-        ].join("")),
-        new RegExp([
-          "(?<!laktose.?fri *)",
-          nonCharPre,
-          "(piske)?",
-          "(fl\xF8de)",
-          nonCharPost
-        ].join("")),
-        new RegExp([
-          "(?<!laktose.?fri *)",
-          nonCharPre,
-          "(sm\xE6r)",
-          nonCharPost
-        ].join("")),
-        new RegExp([
-          "(?<!laktose.?fri *)",
-          nonCharPre,
-          "(fl\xF8de|mozzarella|gede|f\xE5re)?",
-          "(ost)",
-          "(e)?",
-          "(l\xF8be)?",
-          nonCharPost
-        ].join(""))
+        new RegExp("(?<!laktose.?fri *)" + nonCharPre + "(pasteuriseret)?(skummet|mini|let|s\xF8d|tyk|k\xE6rne)?(ko|b\xF8ffel|gede|f\xE5re)?(m\xE6lk|valle)(s|e)?(permeat)?(pulver|protein|syre|fedtstof)?(r|er|.er)?(kultur|koncentrat)?" + nonCharPost),
+        new RegExp("(?<!laktose.?fri *)" + nonCharPre + "(piske)?(fl\xF8de)" + nonCharPost),
+        new RegExp("(?<!laktose.?fri *)" + nonCharPre + "(sm\xE6r)" + nonCharPost),
+        new RegExp("(?<!laktose.?fri *)" + nonCharPre + "(b\xF8ffel)?(mozzarella|parmesan|emmentaler|cheddar|gouda|havarti|ricotta)"),
+        new RegExp("(?<!laktose.?fri *)" + nonCharPre + "(fl\xF8de|gede|f\xE5re|ko)?(bl\xE5skimmel|skimmel)?(ost)(e)?(l\xF8be)?" + nonCharPost)
       ])
     },
     [Allergy.PEANUT]: {
@@ -142,15 +102,7 @@
     [Allergy.SHELLFISH]: {
       name: "Shellfish",
       icon: "\u{1F990}",
-      match: matchHof([
-        "skaldyr",
-        "rejer",
-        "krebs",
-        "hummer",
-        "krabbe",
-        "musling",
-        new RegExp(`\xF8sters${nonCharPost}`)
-      ])
+      match: matchHof(["skaldyr", "rejer", "krebs", "hummer", "krabbe", "musling", new RegExp(`\xF8sters${nonCharPost}`)])
     },
     [Allergy.SOY]: {
       name: "Soy",
