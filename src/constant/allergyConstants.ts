@@ -3,6 +3,7 @@ import { AllergyInfo } from '../type'
 export enum Allergy {
   EGG = 'EGG',
   FISH = 'FISH',
+  GLUTEN = 'GLUTEN',
   LACTOSE = 'LACTOSE',
   PEANUT = 'PEANUT',
   SESAME = 'SESAME',
@@ -39,6 +40,31 @@ export const Allergies = Object.freeze<{ [key in Allergy]: AllergyInfo }>({
     icon: '🐟',
     match: matchHof(['fisk', 'laks', 'tun', 'torsk', 'rødspætte', 'skrubbe', 'kulmule', new RegExp(`(guld|hav|mørk)(bars|taske|sej|kat)`)]),
   },
+  [Allergy.GLUTEN]: {
+    name: 'Gluten',
+    icon: '🍞',
+    match: matchHof([
+      new RegExp(
+        '(?<!gluten.?fri *)' +
+          nonCharPre +
+          '(fuldkorn)?(s)?' +
+          '(øland|durum)(s)?' +
+          // Main
+          '(hvede|rug|byg|malt|graham)' +
+          '(brød)?(s)?' +
+          '(sigte)?' +
+          '(mel|malt|kerner|flager|ekstrakt)?' +
+          nonCharPost
+      ),
+      new RegExp(
+        '(?<!gluten.?fri *[^ ]*)' +
+          '(sur)?' +
+          // Main
+          '(dej)' +
+          nonCharPost
+      ),
+    ]),
+  },
   [Allergy.LACTOSE]: {
     name: 'Milk',
     icon: '🍼',
@@ -54,11 +80,9 @@ export const Allergies = Object.freeze<{ [key in Allergy]: AllergyInfo }>({
           '(skummet|mini|let|sød|tyk|kærne)?' +
           '(ko|bøffel|gede|fåre)?' +
           // Main
-          '(mælk|valle)' +
-          '(s|e)?' +
+          '(mælk|valle)(s|e)?' +
           '(permeat)?' +
-          '(pulver|protein|syre|fedtstof)?' +
-          '(r|er|.er)?' +
+          '(pulver|protein|syre|fedtstof)?(r|er|.er)?' +
           '(kultur|koncentrat)?' +
           nonCharPost
       ),
@@ -76,7 +100,7 @@ export const Allergies = Object.freeze<{ [key in Allergy]: AllergyInfo }>({
         '(?<!laktose.?fri *)' +
           nonCharPre +
           // Main
-          '(smær)' +
+          '(smør)' +
           nonCharPost
       ),
       // = Chesse
@@ -93,8 +117,7 @@ export const Allergies = Object.freeze<{ [key in Allergy]: AllergyInfo }>({
           '(fløde|gede|fåre|ko)?' +
           '(blåskimmel|skimmel)?' +
           // Main
-          '(ost)' +
-          '(e)?' +
+          '(ost)(e)?' +
           '(løbe)?' +
           nonCharPost
       ),

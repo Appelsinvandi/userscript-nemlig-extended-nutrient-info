@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Nemlig Extended Nutrient Info
 // @namespace    https://www.nemlig.com/
-// @version      2.3.2
+// @version      2.4.0
 // @description  Add extra nutrition info to nemlig.com
 // @homepage     https://github.com/Appelsinvandi/userscript-nemlig-extended-nutrient-info
 // @supportURL   https://github.com/Appelsinvandi/userscript-nemlig-extended-nutrient-info/issues
@@ -53,6 +53,7 @@
   (function(Allergy2) {
     Allergy2["EGG"] = "EGG";
     Allergy2["FISH"] = "FISH";
+    Allergy2["GLUTEN"] = "GLUTEN";
     Allergy2["LACTOSE"] = "LACTOSE";
     Allergy2["PEANUT"] = "PEANUT";
     Allergy2["SESAME"] = "SESAME";
@@ -77,6 +78,14 @@
       icon: "\u{1F41F}",
       match: matchHof(["fisk", "laks", "tun", "torsk", "r\xF8dsp\xE6tte", "skrubbe", "kulmule", new RegExp(`(guld|hav|m\xF8rk)(bars|taske|sej|kat)`)])
     },
+    [Allergy.GLUTEN]: {
+      name: "Gluten",
+      icon: "\u{1F35E}",
+      match: matchHof([
+        new RegExp("(?<!gluten.?fri *)" + nonCharPre + "(fuldkorn)?(s)?(\xF8land|durum)(s)?(hvede|rug|byg|malt|graham)(br\xF8d)?(s)?(sigte)?(mel|malt|kerner|flager|ekstrakt)?" + nonCharPost),
+        new RegExp("(?<!gluten.?fri *[^ ]*)(sur)?(dej)" + nonCharPost)
+      ])
+    },
     [Allergy.LACTOSE]: {
       name: "Milk",
       icon: "\u{1F37C}",
@@ -84,7 +93,7 @@
         new RegExp(`laktose(?!.?fri)`),
         new RegExp("(?<!laktose.?fri *)" + nonCharPre + "(pasteuriseret)?(skummet|mini|let|s\xF8d|tyk|k\xE6rne)?(ko|b\xF8ffel|gede|f\xE5re)?(m\xE6lk|valle)(s|e)?(permeat)?(pulver|protein|syre|fedtstof)?(r|er|.er)?(kultur|koncentrat)?" + nonCharPost),
         new RegExp("(?<!laktose.?fri *)" + nonCharPre + "(piske)?(fl\xF8de)" + nonCharPost),
-        new RegExp("(?<!laktose.?fri *)" + nonCharPre + "(sm\xE6r)" + nonCharPost),
+        new RegExp("(?<!laktose.?fri *)" + nonCharPre + "(sm\xF8r)" + nonCharPost),
         new RegExp("(?<!laktose.?fri *)" + nonCharPre + "(b\xF8ffel)?(mozzarella|parmesan|emmentaler|cheddar|gouda|havarti|ricotta)"),
         new RegExp("(?<!laktose.?fri *)" + nonCharPre + "(fl\xF8de|gede|f\xE5re|ko)?(bl\xE5skimmel|skimmel)?(ost)(e)?(l\xF8be)?" + nonCharPost)
       ])

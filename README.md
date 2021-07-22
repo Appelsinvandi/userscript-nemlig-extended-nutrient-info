@@ -20,6 +20,7 @@ Currently the following allergies are supported:
 | -------------- | ------------ |
 | Eggs           | Good         |
 | Fish           | Fair         |
+| Gluten         | Good         |
 | Milk / Lactose | Very good    |
 | Peanut         | Fair         |
 | Sesame         | Fair         |
