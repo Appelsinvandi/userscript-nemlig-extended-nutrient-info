@@ -27,7 +27,7 @@ Currently the following allergies are supported:
 | Shellfish      | Fair         |
 | Soy            | Fair         |
 | Tree nut       | Fair         |
-| Wheat          | Fair         |
+| Wheat          | Good         |
 
 I'm continually adding new allergens and improving the reliability of existing allergens, when I become aware of something missing.
 

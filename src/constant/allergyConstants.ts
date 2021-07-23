@@ -151,7 +151,19 @@ export const Allergies = Object.freeze<{ [key in Allergy]: AllergyInfo }>({
   [Allergy.WHEAT]: {
     name: 'Wheat',
     icon: '🌾',
-    match: matchHof(['hvede']),
+    match: matchHof([
+      new RegExp(
+        nonCharPre +
+          '(fuldkorn)?(s)?' +
+          '(øland|durum)(s)?' +
+          // Main
+          '(hvede|graham)(s)?' +
+          '(fuldkorn)?(s)?' +
+          '(sigte)?' +
+          '(mel|malt|kerner|flager|ekstrakt)?' +
+          nonCharPost
+      ),
+    ]),
   },
 })
 

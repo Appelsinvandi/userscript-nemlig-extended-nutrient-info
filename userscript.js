@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Nemlig Extended Nutrient Info
 // @namespace    https://www.nemlig.com/
-// @version      2.4.0
+// @version      2.4.1
 // @description  Add extra nutrition info to nemlig.com
 // @homepage     https://github.com/Appelsinvandi/userscript-nemlig-extended-nutrient-info
 // @supportURL   https://github.com/Appelsinvandi/userscript-nemlig-extended-nutrient-info/issues
@@ -126,7 +126,9 @@
     [Allergy.WHEAT]: {
       name: "Wheat",
       icon: "\u{1F33E}",
-      match: matchHof(["hvede"])
+      match: matchHof([
+        new RegExp(nonCharPre + "(fuldkorn)?(s)?(\xF8land|durum)(s)?(hvede|graham)(s)?(fuldkorn)?(s)?(sigte)?(mel|malt|kerner|flager|ekstrakt)?" + nonCharPost)
+      ])
     }
   });
   function matchHof(searches) {
