@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Nemlig Extended Nutrient Info
 // @namespace    https://www.nemlig.com/
-// @version      2.4.1
+// @version      2.4.2
 // @description  Add extra nutrition info to nemlig.com
 // @homepage     https://github.com/Appelsinvandi/userscript-nemlig-extended-nutrient-info
 // @supportURL   https://github.com/Appelsinvandi/userscript-nemlig-extended-nutrient-info/issues
@@ -70,7 +70,13 @@
       name: "Egg",
       icon: "\u{1F95A}",
       match: matchHof([
-        new RegExp(nonCharPre + "(skrabe|frilands|hel)?(\xE6g)(ge)?(hvide|blomme)?(pulver)?(r|er)?" + nonCharPost)
+        genMatch([["\xE6g"], ["ge"]], {
+          preFixes: [["skrabe", "friland", "hel"], ["s"]],
+          postFixes: [
+            ["hvide", "blomme", "pulver"],
+            ["r", "er"]
+          ]
+        })
       ])
     },
     [Allergy.FISH]: {
@@ -82,8 +88,11 @@
       name: "Gluten",
       icon: "\u{1F35E}",
       match: matchHof([
-        new RegExp("(?<!gluten.?fri *)" + nonCharPre + "(fuldkorn)?(s)?(\xF8land|durum)(s)?(hvede|rug|byg|malt|graham)(br\xF8d)?(s)?(sigte)?(mel|malt|kerner|flager|ekstrakt)?" + nonCharPost),
-        new RegExp("(?<!gluten.?fri *[^ ]*)(sur)?(dej)" + nonCharPost)
+        genMatch([["hvede", "graham", "rug", "byg", "malt"], ["s"]], {
+          preFixes: [["fuldkorn", "\xF8land", "durum"], ["s"]],
+          postFixes: [["fuldkorn", "br\xF8d", "sigte", "mel", "malt", "kerner", "flager", "ekstrakt"], ["s"]],
+          negativeMatchBefore: "gluten.?fri *"
+        })
       ])
     },
     [Allergy.LACTOSE]: {
@@ -91,11 +100,33 @@
       icon: "\u{1F37C}",
       match: matchHof([
         new RegExp(`laktose(?!.?fri)`),
-        new RegExp("(?<!laktose.?fri *)" + nonCharPre + "(pasteuriseret)?(skummet|mini|let|s\xF8d|tyk|k\xE6rne)?(ko|b\xF8ffel|gede|f\xE5re)?(m\xE6lk|valle)(s|e)?(permeat)?(pulver|protein|syre|fedtstof)?(r|er|.er)?(kultur|koncentrat)?" + nonCharPost),
-        new RegExp("(?<!laktose.?fri *)" + nonCharPre + "(piske)?(fl\xF8de)" + nonCharPost),
-        new RegExp("(?<!laktose.?fri *)" + nonCharPre + "(sm\xF8r)" + nonCharPost),
-        new RegExp("(?<!laktose.?fri *)" + nonCharPre + "(b\xF8ffel)?(mozzarella|parmesan|emmentaler|cheddar|gouda|havarti|ricotta)"),
-        new RegExp("(?<!laktose.?fri *)" + nonCharPre + "(fl\xF8de|gede|f\xE5re|ko)?(bl\xE5skimmel|skimmel)?(ost)(e)?(l\xF8be)?" + nonCharPost)
+        genMatch([
+          ["m\xE6lk", "valle"],
+          ["s", "e"]
+        ], {
+          preFixes: [["pasteuriseret", "skummet", "mini", "let", "s\xF8d", "tyk", "k\xE6rne", "ko", "b\xF8ffel", "gede", "f\xE5re"]],
+          postFixes: [
+            ["permeat", "pulver", "protein", "syre", "fedtstof", "kultur", "koncentrat"],
+            ["r", "er", ".er"]
+          ],
+          negativeMatchBefore: "laktose.?fri *"
+        }),
+        genMatch([["fl\xF8de"]], {
+          preFixes: [["piske"]],
+          negativeMatchBefore: "laktose.?fri *"
+        }),
+        genMatch([["sm\xF8r"]], {
+          negativeMatchBefore: "laktose.?fri *"
+        }),
+        genMatch([["mozzarella", "parmesan", "emmentaler", "cheddar", "gouda", "havarti", "ricotta"]], {
+          preFixes: [["b\xF8ffel"]],
+          negativeMatchBefore: "laktose.?fri *"
+        }),
+        genMatch([["ost"], ["e"]], {
+          preFixes: [["fl\xF8de", "gede", "f\xE5re", "ko", "bl\xE5", "skimmel"]],
+          postFixes: [["l\xF8be"]],
+          negativeMatchBefore: "laktose.?fri *"
+        })
       ])
     },
     [Allergy.PEANUT]: {
@@ -127,7 +158,11 @@
       name: "Wheat",
       icon: "\u{1F33E}",
       match: matchHof([
-        new RegExp(nonCharPre + "(fuldkorn)?(s)?(\xF8land|durum)(s)?(hvede|graham)(s)?(fuldkorn)?(s)?(sigte)?(mel|malt|kerner|flager|ekstrakt)?" + nonCharPost)
+        genMatch([["hvede", "graham"], ["s"]], {
+          preFixes: [["fuldkorn", "\xF8land", "durum"], ["s"]],
+          postFixes: [["fuldkorn", "br\xF8d", "sigte", "mel", "malt", "kerner", "flager", "ekstrakt"], ["s"]],
+          negativeMatchBefore: "gluten.?fri *"
+        })
       ])
     }
   });
@@ -136,6 +171,33 @@
       const testString = Array.isArray(ingredients) ? ingredients.join(" ") : ingredients;
       return searches.some((e) => new RegExp(e, "gi").test(testString));
     };
+  }
+  function genMatch(main, { preFixes, postFixes, negativeMatchBefore, negativeMatchAfter } = {}) {
+    let res = "";
+    if (negativeMatchBefore != null)
+      res += `(?<!${negativeMatchBefore})`;
+    res += nonCharPre;
+    if (preFixes != null) {
+      res += "(";
+      res += `(${preFixes[0].join("|")})`;
+      if (preFixes[1] != null)
+        res += `(${preFixes[1].join("|")})?`;
+      res += ")*";
+    }
+    res += `(${main[0].join("|")})`;
+    if (main[1] != null)
+      res += `(${main[1].join("|")})?`;
+    if (postFixes != null) {
+      res += "(";
+      res += `(${postFixes[0].join("|")})`;
+      if ((postFixes == null ? void 0 : postFixes[1]) != null)
+        res += `(${postFixes[1].join("|")})?`;
+      res += ")*";
+    }
+    res += nonCharPost;
+    if (negativeMatchAfter != null)
+      res += `(?!${negativeMatchAfter})`;
+    return new RegExp(res, "gi");
   }
 
   // src/constant/nutritionConstants.ts

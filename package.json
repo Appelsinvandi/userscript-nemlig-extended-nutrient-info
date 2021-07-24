@@ -1,7 +1,7 @@
 {
   "name": "userscript-nemlig-extended-nutrient-info",
   "description": "Add extra nutrition info to nemlig.com",
-  "version": "2.4.1",
+  "version": "2.4.2",
   "repository": "https://github.com/Appelsinvandi/userscript-nemlig-extended-nutrient-info.git",
   "author": "Morten Jelle <1551620+Appelsinvandi@users.noreply.github.com>",
   "license": "MIT",

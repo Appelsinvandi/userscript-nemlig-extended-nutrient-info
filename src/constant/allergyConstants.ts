@@ -22,17 +22,13 @@ export const Allergies = Object.freeze<{ [key in Allergy]: AllergyInfo }>({
     name: 'Egg',
     icon: '🥚',
     match: matchHof([
-      new RegExp(
-        nonCharPre +
-          '(skrabe|frilands|hel)?' +
-          // Main
-          '(æg)' +
-          '(ge)?' +
-          '(hvide|blomme)?' +
-          '(pulver)?' +
-          '(r|er)?' +
-          nonCharPost
-      ),
+      genMatch([['æg'], ['ge']], {
+        preFixes: [['skrabe', 'friland', 'hel'], ['s']],
+        postFixes: [
+          ['hvide', 'blomme', 'pulver'],
+          ['r', 'er'],
+        ],
+      }),
     ]),
   },
   [Allergy.FISH]: {
@@ -44,25 +40,11 @@ export const Allergies = Object.freeze<{ [key in Allergy]: AllergyInfo }>({
     name: 'Gluten',
     icon: '🍞',
     match: matchHof([
-      new RegExp(
-        '(?<!gluten.?fri *)' +
-          nonCharPre +
-          '(fuldkorn)?(s)?' +
-          '(øland|durum)(s)?' +
-          // Main
-          '(hvede|rug|byg|malt|graham)' +
-          '(brød)?(s)?' +
-          '(sigte)?' +
-          '(mel|malt|kerner|flager|ekstrakt)?' +
-          nonCharPost
-      ),
-      new RegExp(
-        '(?<!gluten.?fri *[^ ]*)' +
-          '(sur)?' +
-          // Main
-          '(dej)' +
-          nonCharPost
-      ),
+      genMatch([['hvede', 'graham', 'rug', 'byg', 'malt'], ['s']], {
+        preFixes: [['fuldkorn', 'øland', 'durum'], ['s']],
+        postFixes: [['fuldkorn', 'brød', 'sigte', 'mel', 'malt', 'kerner', 'flager', 'ekstrakt'], ['s']],
+        negativeMatchBefore: 'gluten.?fri *',
+      }),
     ]),
   },
   [Allergy.LACTOSE]: {
@@ -72,55 +54,39 @@ export const Allergies = Object.freeze<{ [key in Allergy]: AllergyInfo }>({
       // = Lactose
       new RegExp(`laktose(?!.?fri)`),
       // = Milk
-      // https://regex101.com/r/ULUQbg/1
-      new RegExp(
-        '(?<!laktose.?fri *)' +
-          nonCharPre +
-          '(pasteuriseret)?' +
-          '(skummet|mini|let|sød|tyk|kærne)?' +
-          '(ko|bøffel|gede|fåre)?' +
-          // Main
-          '(mælk|valle)(s|e)?' +
-          '(permeat)?' +
-          '(pulver|protein|syre|fedtstof)?(r|er|.er)?' +
-          '(kultur|koncentrat)?' +
-          nonCharPost
+      genMatch(
+        [
+          ['mælk', 'valle'],
+          ['s', 'e'],
+        ],
+        {
+          preFixes: [['pasteuriseret', 'skummet', 'mini', 'let', 'sød', 'tyk', 'kærne', 'ko', 'bøffel', 'gede', 'fåre']],
+          postFixes: [
+            ['permeat', 'pulver', 'protein', 'syre', 'fedtstof', 'kultur', 'koncentrat'],
+            ['r', 'er', '.er'],
+          ],
+          negativeMatchBefore: 'laktose.?fri *',
+        }
       ),
       // = Cream
-      new RegExp(
-        '(?<!laktose.?fri *)' +
-          nonCharPre +
-          '(piske)?' +
-          // Main
-          '(fløde)' +
-          nonCharPost
-      ),
+      genMatch([['fløde']], {
+        preFixes: [['piske']],
+        negativeMatchBefore: 'laktose.?fri *',
+      }),
       // = Butter
-      new RegExp(
-        '(?<!laktose.?fri *)' +
-          nonCharPre +
-          // Main
-          '(smør)' +
-          nonCharPost
-      ),
+      genMatch([['smør']], {
+        negativeMatchBefore: 'laktose.?fri *',
+      }),
       // = Chesse
-      new RegExp(
-        '(?<!laktose.?fri *)' +
-          nonCharPre +
-          // Main
-          '(bøffel)?' +
-          '(mozzarella|parmesan|emmentaler|cheddar|gouda|havarti|ricotta)'
-      ),
-      new RegExp(
-        '(?<!laktose.?fri *)' +
-          nonCharPre +
-          '(fløde|gede|fåre|ko)?' +
-          '(blåskimmel|skimmel)?' +
-          // Main
-          '(ost)(e)?' +
-          '(løbe)?' +
-          nonCharPost
-      ),
+      genMatch([['mozzarella', 'parmesan', 'emmentaler', 'cheddar', 'gouda', 'havarti', 'ricotta']], {
+        preFixes: [['bøffel']],
+        negativeMatchBefore: 'laktose.?fri *',
+      }),
+      genMatch([['ost'], ['e']], {
+        preFixes: [['fløde', 'gede', 'fåre', 'ko', 'blå', 'skimmel']],
+        postFixes: [['løbe']],
+        negativeMatchBefore: 'laktose.?fri *',
+      }),
     ]),
   },
   [Allergy.PEANUT]: {
@@ -152,17 +118,11 @@ export const Allergies = Object.freeze<{ [key in Allergy]: AllergyInfo }>({
     name: 'Wheat',
     icon: '🌾',
     match: matchHof([
-      new RegExp(
-        nonCharPre +
-          '(fuldkorn)?(s)?' +
-          '(øland|durum)(s)?' +
-          // Main
-          '(hvede|graham)(s)?' +
-          '(fuldkorn)?(s)?' +
-          '(sigte)?' +
-          '(mel|malt|kerner|flager|ekstrakt)?' +
-          nonCharPost
-      ),
+      genMatch([['hvede', 'graham'], ['s']], {
+        preFixes: [['fuldkorn', 'øland', 'durum'], ['s']],
+        postFixes: [['fuldkorn', 'brød', 'sigte', 'mel', 'malt', 'kerner', 'flager', 'ekstrakt'], ['s']],
+        negativeMatchBefore: 'gluten.?fri *',
+      }),
     ]),
   },
 })
@@ -172,4 +132,40 @@ function matchHof(searches: (string | RegExp)[]): AllergyInfo['match'] {
     const testString = Array.isArray(ingredients) ? ingredients.join(' ') : ingredients
     return searches.some((e) => new RegExp(e, 'gi').test(testString))
   }
+}
+
+type MatchPart = [matches: string[], plurals?: string[]]
+interface GenMatchOpts {
+  preFixes?: MatchPart
+  postFixes?: MatchPart
+  negativeMatchBefore?: string
+  negativeMatchAfter?: string
+}
+function genMatch(main: MatchPart, { preFixes, postFixes, negativeMatchBefore, negativeMatchAfter }: GenMatchOpts = {}) {
+  let res = ''
+
+  if (negativeMatchBefore != null) res += `(?<!${negativeMatchBefore})`
+  res += nonCharPre
+
+  if (preFixes != null) {
+    res += '('
+    res += `(${preFixes[0].join('|')})`
+    if (preFixes[1] != null) res += `(${preFixes[1].join('|')})?`
+    res += ')*'
+  }
+
+  res += `(${main[0].join('|')})`
+  if (main[1] != null) res += `(${main[1].join('|')})?`
+
+  if (postFixes != null) {
+    res += '('
+    res += `(${postFixes[0].join('|')})`
+    if (postFixes?.[1] != null) res += `(${postFixes[1].join('|')})?`
+    res += ')*'
+  }
+
+  res += nonCharPost
+  if (negativeMatchAfter != null) res += `(?!${negativeMatchAfter})`
+
+  return new RegExp(res, 'gi')
 }
