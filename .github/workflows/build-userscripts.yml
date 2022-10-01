@@ -40,7 +40,8 @@ jobs:
       - name: Build
         env:
           DOWNLOAD_URL_BASE: ${{ steps.deployment.outputs.page_url }}
-        run: DOWNLOAD_URL_BASE=$DOWNLOAD_URL_BASE REPO_URL_BASE="https://github.com/$GITHUB_REPOSITORY" yarn build
+          REPO_URL_BASE: https://github.com/${{ github.repository }}
+        run: DOWNLOAD_URL_BASE=$DOWNLOAD_URL_BASE yarn build
 
       - name: Upload artifacts
         uses: actions/upload-pages-artifact@v1
