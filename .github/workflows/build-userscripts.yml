@@ -39,9 +39,9 @@ jobs:
 
       - name: Build
         env:
-          DOWNLOAD_URL_BASE: ${{ steps.deployment.outputs.page_url }}
-          REPO_URL_BASE: https://github.com/${{ github.repository }}
-        run: DOWNLOAD_URL_BASE=$DOWNLOAD_URL_BASE yarn build
+          DOWNLOAD_URL_BASE: https://${{ github.event.repository.owner.name }}.github.io/${{ github.event.repository.name }}
+          REPO_URL_BASE: ${{ github.event.repository.url }}
+        run: yarn build
 
       - name: Upload artifacts
         uses: actions/upload-pages-artifact@v1
