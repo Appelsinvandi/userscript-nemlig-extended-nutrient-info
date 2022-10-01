@@ -51,7 +51,7 @@ _This is the current mainline version._
 
 With this release the extended nutrient info is moved out of the food declaration section, into a fixed floating element. This will negate the need to ever scroll to see the extended nutrient info. In addition, it also adds nutrient advisory messages.
 
-Find this version here: https://raw.githubusercontent.com/Appelsinvandi/userscript-nemlig-extended-nutrient-info/main/userscript.js
+Find this version here: https://appelsinvandi.github.io/userscript-online-grocery-tools/nemlig-extended-nutrition.user.js
 
 ## 1.x.x
 

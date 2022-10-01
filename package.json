@@ -1,6 +1,6 @@
 {
   "name": "online-grocery-tools",
-  "author": "Morten Jelle <1551620+Appelsinvandi@users.noreply.github.com>",
+  "author": "Morten Jelle <1551620+appelsinvandi@users.noreply.github.com>",
   "license": "MIT",
   "packageManager": "yarn@3.2.3",
   "workspaces": [
