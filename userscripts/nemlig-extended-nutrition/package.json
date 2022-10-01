@@ -1,0 +1,30 @@
+{
+  "name": "@userscripts/nemlig-extended-nutrition",
+  "displayName": "Nemlig Extended Nutrient Info",
+  "description": "Add extra nutrition info to nemlig.com",
+  "version": "2.5.0",
+  "scripts": {
+    "build": "rimraf dist && userscript-builder src/index.ts dist/nemlig-extended-nutrition.user.js"
+  },
+  "dependencies": {
+    "@libs/nutrition-info": "workspace:*"
+  },
+  "devDependencies": {
+    "@tools/userscript-builder": "workspace:*",
+    "@tsconfig/recommended": "1.0.1",
+    "esbuild": "^0.15.10",
+    "rimraf": "^3.0.2",
+    "tslib": "^2.4.0",
+    "typescript": "^4.9.1-beta"
+  },
+  "userscriptMetadata": {
+    "namespace": "https://www.nemlig.com",
+    "icon": "https://www.google.com/s2/favicons?domain=nemlig.com",
+    "match": [
+      "https://www.nemlig.com/*"
+    ],
+    "grant": [
+      "none"
+    ]
+  }
+}

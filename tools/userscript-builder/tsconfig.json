@@ -1,0 +1,7 @@
+{
+  "extends": "@tsconfig/node16",
+  "ts-node": {
+    "transpileOnly": true,
+    "typeCheck": false
+  }
+}

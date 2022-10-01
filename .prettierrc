@@ -1,0 +1,8 @@
+{
+  "importOrder": ["<THIRD_PARTY_MODULES>", "^~/", "^\\.+/"],
+  "importOrderCaseInsensitive": true,
+  "importOrderSeparation": true,
+  "importOrderSortSpecifiers": true,
+  "semi": false,
+  "singleQuote": true
+}

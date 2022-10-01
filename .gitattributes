@@ -1,0 +1,4 @@
+# Don't allow people to merge changes to these generated files, because the result may be invalid.
+yarn.lock merge=binary linguist-generated
+
+.yarn/** merge=binary linguist-vendored
