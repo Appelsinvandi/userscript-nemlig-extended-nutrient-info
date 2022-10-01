@@ -4,7 +4,8 @@
   "description": "Add extra nutrition info to nemlig.com",
   "version": "2.5.0",
   "scripts": {
-    "build": "rimraf dist && userscript-builder src/index.ts dist/nemlig-extended-nutrition.user.js"
+    "build": "rimraf dist && userscript-builder src/index.ts dist/nemlig-extended-nutrition.user.js",
+    "build:dev": "rimraf dist && userscript-builder --dev src/index.ts dist/nemlig-extended-nutrition.user.js"
   },
   "dependencies": {
     "@libs/nutrition-info": "workspace:*"

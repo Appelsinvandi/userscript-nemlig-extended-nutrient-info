@@ -4,7 +4,8 @@ import path from 'path'
 
 import { CliCtx } from '../types'
 import {
-  generateUserscriptHead,
+  compileUserscriptHead,
+  getUserscriptMetaFromProject,
   monorepoRootPath,
   workspaceRootPath,
 } from '../utils'
@@ -14,12 +15,55 @@ export class DefaultCommand extends Command<CliCtx> {
   inputFilePath = Option.String()
   outputFilePath = Option.String()
 
+  devMode = Option.Boolean('--dev')
+
   repoUrlBase = Option.String('--repo-url-base', { env: 'REPO_URL_BASE' })
   downloadUrlBase = Option.String('--download-url-base', {
     env: 'DOWNLOAD_URL_BASE',
   })
 
   async execute(): Promise<void> {
+    if (this.devMode) {
+      await this.buildDev()
+    } else {
+      await this.buildProd()
+    }
+  }
+
+  async buildDev() {
+    const absInputFilePath = path.resolve(this.context.cwd, this.inputFilePath)
+    const absOutputFilePath = path.resolve(
+      this.context.cwd,
+      this.outputFilePath
+    )
+
+    await buildScript(absInputFilePath, absOutputFilePath, {
+      watch: {
+        onRebuild(error, result) {
+          if (error) {
+            console.error('watch build failed:', error)
+          } else {
+            console.log('watch build succeeded:', result)
+          }
+        },
+      },
+    })
+
+    const userscriptMeta = getUserscriptMetaFromProject()
+    userscriptMeta.name += ' - Dev'
+    fs.writeFileSync(
+      path.resolve(
+        path.dirname(absOutputFilePath),
+        path.basename(absOutputFilePath, 'user.js') + 'dev.user.js'
+      ),
+      compileUserscriptHead({
+        ...userscriptMeta,
+        require: 'file://' + absOutputFilePath,
+      })
+    )
+  }
+
+  async buildProd() {
     const repoUrlBase = this.repoUrlBase?.replace(/\/+$/, '')
     const downloadUrlBase = this.downloadUrlBase?.replace(/\/+$/, '')
     const workspaceRelativePath = path.relative(
@@ -44,7 +88,8 @@ export class DefaultCommand extends Command<CliCtx> {
 
     fs.writeFileSync(
       absOutputFilePath,
-      generateUserscriptHead({
+      compileUserscriptHead({
+        ...getUserscriptMetaFromProject(),
         homepage: repoUrlBase
           ? repoUrlBase + '/' + workspaceRelativePath.replace(/\\/g, '/')
           : undefined,
